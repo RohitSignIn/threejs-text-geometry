@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import GUI from "lil-gui";
 import {
   FontLoader,
   OrbitControls,
@@ -38,13 +39,41 @@ controls.enableDamping = true;
 
 const textureLoader = new THREE.TextureLoader();
 
-const matcapTexture = textureLoader.load("/textures/matcaps/1.png");
-matcapTexture.colorSpace = THREE.SRGBColorSpace;
+const gui = new GUI();
 
-const fontLoader = new FontLoader();
+const matcapOptions = {
+  matcap: 1, // Default is 6.png
+};
 
 const matcapMaterial = new THREE.MeshMatcapMaterial();
-matcapMaterial.matcap = matcapTexture;
+
+const updateMatcap = (index) => {
+  const texturePath = `/textures/matcaps/${index}.png`;
+  textureLoader.load(texturePath, (newTexture) => {
+    newTexture.colorSpace = THREE.SRGBColorSpace;
+    matcapMaterial.matcap = newTexture;
+    matcapMaterial.needsUpdate = true;
+  });
+};
+
+gui
+  .add(matcapOptions, "matcap", {
+    "Mat 1": 1,
+    "Mat 2": 2,
+    "Mat 3": 3,
+    "Mat 4": 4,
+    "Mat 5": 5,
+    "Mat 6": 6,
+  })
+  .name("Matcap")
+  .onChange((value) => {
+    updateMatcap(value);
+  });
+
+// Load initial matcap
+updateMatcap(matcapOptions.matcap);
+
+const fontLoader = new FontLoader();
 
 fontLoader.load("/fonts/helvetiker_regular.typeface.json", (font) => {
   //  TextGeometry
